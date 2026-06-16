@@ -1,59 +1,72 @@
 # Job Application Tracker
 
-A production-ready, full-stack job application tracker with a clean monorepo structure.
-
-```
-application-tracker/
-├── frontend/   Next.js 15 · TypeScript · Tailwind CSS
-└── backend/    Express · TypeScript · Prisma · PostgreSQL
-```
-
-## Features
-
-- Track applications: Applied, Interviewing, Offer, Rejected
-- Filter by status and debounced full-text search
-- Add, edit, view, and delete applications via modals
-- Dashboard stat cards with live counts
-- Loading skeletons, toast notifications, delete confirmation
-- Strict TypeScript throughout — zero `any`
-- Clean architecture: config → types → validations → services → controllers → routes
-
----
+A production-ready, full-stack job application tracker built with **Next.js**, **Express.js**, **PostgreSQL**, and **Prisma ORM**. Track your job applications through different hiring stages with a clean, intuitive interface.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 15 (App Router), TypeScript, Tailwind CSS |
-| Backend | Express.js, TypeScript |
-| ORM | Prisma 5 |
-| Database | PostgreSQL |
-| Validation | Zod |
-| UI Extras | react-hot-toast, lucide-react |
+| **Frontend** | Next.js 15, React 19, Tailwind CSS, TypeScript (Strict) |
+| **Backend** | Express.js, Node.js, TypeScript |
+| **Database** | PostgreSQL with Prisma ORM |
+| **Validation** | Zod for schema validation |
+
+## Features
+
+✅ **Application Management**
+- Create, read, update, and delete job applications
+- Filter applications by status (Applied, Interviewing, Offer, Rejected)
+- Search by company name or job title
+- Categorize by job type (Internship, Full-time, Part-time)
+
+✅ **User Experience**
+- Responsive, clean dashboard interface
+- Real-time filtering and search
+- Loading states and error handling
+- Toast notifications for user feedback
+- Delete confirmation modal to prevent accidents
+- Proper form validation with error messages
+
+✅ **Code Quality**
+- TypeScript strict mode throughout
+- Type-safe API client
+- Proper error handling and HTTP status codes
+- Clean, modular architecture
+- No `any` types used
 
 ---
 
 ## Prerequisites
 
-- Node.js 18+
-- PostgreSQL database running locally or remotely
+- **Node.js** 18+ and npm/yarn
+- **PostgreSQL** 13+ (local or Docker)
+- **Docker** & **Docker Compose** (optional, for containerized PostgreSQL)
 
 ---
 
-## Setup
+## Installation
 
-### 1. Clone
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/yugpokharel/ApplicationTracker.git
 cd ApplicationTracker
 ```
 
-### 2. Backend
+### 2. Install Dependencies
 
 ```bash
-cd backend
+npm install
+```
+
+This installs dependencies for both backend and frontend.
+
+### 3. Set Up Environment Variables
+
+```bash
 cp .env.example .env
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env.local
 ```
 
 Edit `backend/.env`:
@@ -65,38 +78,155 @@ NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
 ```
 
-Install dependencies and run migrations:
-
-```bash
-npm install
-npm run db:migrate
-npm run db:generate
-npm run dev
-```
-
-Backend runs at **http://localhost:5000**
-
-### 3. Frontend
-
-```bash
-cd frontend
-cp .env.example .env.local
-```
-
 Edit `frontend/.env.local`:
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-Install and run:
+### 4. Set Up PostgreSQL
+
+**Using Docker Compose (Recommended):**
 
 ```bash
-npm install
+docker compose up -d
+```
+
+**Or use local PostgreSQL:**
+
+Update `DATABASE_URL` in `backend/.env` with your connection string.
+
+### 5. Run Database Migrations
+
+```bash
+cd backend
+npm run db:migrate
+npm run db:generate
+```
+
+---
+
+## Running the Application
+
+### Development Mode
+
+**Terminal 1 - Backend (Port 5000):**
+
+```bash
+cd backend
 npm run dev
 ```
 
-Frontend runs at **http://localhost:3000**
+**Terminal 2 - Frontend (Port 3000):**
+
+```bash
+cd frontend
+npm run dev
+```
+
+Access at **http://localhost:3000**
+
+### Production Build
+
+```bash
+cd backend && npm run build && npm start
+cd frontend && npm run build && npm start
+```
+
+---
+
+## API Documentation
+
+**Base URL:** `http://localhost:5000/api`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/applications` | List applications (supports `?status=` and `?search=`) |
+| GET | `/applications/:id` | Get single application |
+| POST | `/applications` | Create application |
+| PATCH | `/applications/:id` | Update application |
+| DELETE | `/applications/:id` | Delete application |
+
+---
+
+## Project Structure
+
+```
+.
+├── backend/
+│   ├── src/
+│   │   ├── app.ts
+│   │   ├── index.ts
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   ├── types/
+│   │   └── validations/
+│   ├── prisma/
+│   │   └── schema.prisma
+│   └── package.json
+│
+├── frontend/
+│   ├── app/
+│   ├── components/
+│   ├── lib/
+│   ├── types/
+│   └── package.json
+│
+└── docker-compose.yml
+```
+
+---
+
+## Environment Variables
+
+### Root `.env`
+```
+DATABASE_URL="postgresql://tracker_user:tracker_password@localhost:5432/application_tracker?schema=public"
+```
+
+### Backend `backend/.env`
+```
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/application_tracker?schema=public"
+PORT=5000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:3000
+```
+
+### Frontend `frontend/.env.local`
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000/api
+```
+
+---
+
+## Database Schema
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | UUID | Primary key |
+| `company_name` | String | Required, min 2 chars |
+| `job_title` | String | Required |
+| `job_type` | Enum | Internship, FullTime, PartTime |
+| `status` | Enum | Applied, Interviewing, Offer, Rejected |
+| `applied_date` | DateTime | Required |
+| `notes` | String | Optional |
+| `created_at` | DateTime | Auto-set |
+| `updated_at` | DateTime | Auto-updated |
+
+---
+
+## TypeScript
+
+Both backend and frontend use **strict mode** (`"strict": true`).
+
+---
+
+## License
+
+MIT
 
 ---
 
