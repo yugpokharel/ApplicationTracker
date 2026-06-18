@@ -1,70 +1,64 @@
 # Job Application Tracker
 
-A production-ready, full-stack job application tracker built with **Next.js**, **Express.js**, **PostgreSQL**, and **Prisma ORM**. Track your job applications through different hiring stages with a clean, intuitive interface.
+A full-stack job application tracker built with Next.js, Express.js, PostgreSQL, and Prisma ORM. Helps you keep track of where you've applied, what stage you're in, and any notes you want to remember.
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | Next.js 15, React 19, Tailwind CSS, TypeScript (Strict) |
-| **Backend** | Express.js, Node.js, TypeScript |
-| **Database** | PostgreSQL with Prisma ORM |
-| **Validation** | Zod for schema validation |
+| Frontend | Next.js 15, React 19, Tailwind CSS, TypeScript |
+| Backend | Express.js, Node.js, TypeScript |
+| Database | PostgreSQL with Prisma ORM |
+| Validation | Zod |
 
-## Features
+## What it does
 
-✅ **Application Management**
-- Create, read, update, and delete job applications
-- Filter applications by status (Applied, Interviewing, Offer, Rejected)
+**Application management**
+- Add, edit, view, and delete job applications
+- Filter by status: Applied, Interviewing, Offer, Rejected
 - Search by company name or job title
-- Categorize by job type (Internship, Full-time, Part-time)
+- Tag by job type: Internship, Full-time, Part-time
 
-✅ **User Experience**
-- Responsive, clean dashboard interface
-- Real-time filtering and search
-- Loading states and error handling
-- Toast notifications for user feedback
-- Delete confirmation modal to prevent accidents
-- Proper form validation with error messages
+**UI**
+- Clean dashboard with stats at the top
+- Real-time search and filter
+- Toast notifications for feedback
+- Confirm before deleting anything
+- Form validation with error messages
 
-✅ **Code Quality**
-- TypeScript strict mode throughout
+**Code**
+- TypeScript strict mode on both frontend and backend
 - Type-safe API client
-- Proper error handling and HTTP status codes
-- Clean, modular architecture
-- No `any` types used
+- Clean layered architecture (controller, service, repository)
+- No `any` types
 
 ---
 
 ## Prerequisites
 
-- **Node.js** 18+ and npm/yarn
-- **PostgreSQL** 13+ (local or Docker)
-- **Docker** & **Docker Compose** (optional, for containerized PostgreSQL)
+- Node.js 18+
+- PostgreSQL 13+ installed locally
 
 ---
 
-## Installation
+## Setup
 
-### 1. Clone the Repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/yugpokharel/ApplicationTracker.git
 cd ApplicationTracker
 ```
 
-### 2. Install Dependencies
+### 2. Install dependencies
 
 ```bash
 npm install
 ```
 
-This installs dependencies for both backend and frontend.
-
-### 3. Set Up Environment Variables
+### 3. Configure environment variables
 
 ```bash
-cp .env.example .env
 cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env.local
 ```
@@ -72,7 +66,7 @@ cp frontend/.env.example frontend/.env.local
 Edit `backend/.env`:
 
 ```env
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/application_tracker?schema=public"
+DATABASE_URL="postgresql://YOUR_USER@localhost:5432/application_tracker?schema=public"
 PORT=5000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
@@ -84,72 +78,78 @@ Edit `frontend/.env.local`:
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### 4. Set Up PostgreSQL
+### 4. Set up the database
 
-**Using Docker Compose (Recommended):**
+Start PostgreSQL, then create the database:
 
 ```bash
-docker compose up -d
+psql postgres
 ```
 
-**Or use local PostgreSQL:**
+```sql
+CREATE DATABASE application_tracker;
+\q
+```
 
-Update `DATABASE_URL` in `backend/.env` with your connection string.
-
-### 5. Run Database Migrations
+### 5. Run migrations
 
 ```bash
-cd backend
 npm run db:migrate
-npm run db:generate
 ```
 
 ---
 
-## Running the Application
+## Running locally
 
-### Development Mode
+Open two terminal tabs:
 
-**Terminal 1 - Backend (Port 5000):**
-
-```bash
-cd backend
-npm run dev
-```
-
-**Terminal 2 - Frontend (Port 3000):**
+**Tab 1 - Backend (port 5000):**
 
 ```bash
-cd frontend
-npm run dev
+npm run dev:backend
 ```
 
-Access at **http://localhost:3000**
-
-### Production Build
+**Tab 2 - Frontend (port 3000):**
 
 ```bash
-cd backend && npm run build && npm start
-cd frontend && npm run build && npm start
+npm run dev:frontend
 ```
+
+Go to http://localhost:3000.
 
 ---
 
-## API Documentation
+## API
 
-**Base URL:** `http://localhost:5000/api`
+Base URL: `http://localhost:5000/api`
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/applications` | List applications (supports `?status=` and `?search=`) |
-| GET | `/applications/:id` | Get single application |
-| POST | `/applications` | Create application |
-| PATCH | `/applications/:id` | Update application |
-| DELETE | `/applications/:id` | Delete application |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/applications` | List all applications (supports `?status=` and `?search=`) |
+| GET | `/applications/:id` | Get a single application |
+| POST | `/applications` | Create a new application |
+| PATCH | `/applications/:id` | Update an application |
+| DELETE | `/applications/:id` | Delete an application |
+
+### Request body (POST/PATCH)
+
+```json
+{
+  "company_name": "Google",
+  "job_title": "Software Engineer",
+  "job_type": "FullTime",
+  "status": "Applied",
+  "applied_date": "2025-01-15T00:00:00.000Z",
+  "notes": "Referred by John"
+}
+```
+
+`job_type`: `Internship` | `FullTime` | `PartTime`
+`status`: `Applied` | `Interviewing` | `Offer` | `Rejected`
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 .
@@ -165,7 +165,8 @@ cd frontend && npm run build && npm start
 │   │   ├── types/
 │   │   └── validations/
 │   ├── prisma/
-│   │   └── schema.prisma
+│   │   ├── schema.prisma
+│   │   └── migrations/
 │   └── package.json
 │
 ├── frontend/
@@ -180,157 +181,81 @@ cd frontend && npm run build && npm start
 
 ---
 
-## Environment Variables
-
-### Root `.env`
-```
-DATABASE_URL="postgresql://tracker_user:tracker_password@localhost:5432/application_tracker?schema=public"
-```
-
-### Backend `backend/.env`
-```
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/application_tracker?schema=public"
-PORT=5000
-NODE_ENV=development
-FRONTEND_URL=http://localhost:3000
-```
-
-### Frontend `frontend/.env.local`
-```
-NEXT_PUBLIC_API_URL=http://localhost:5000/api
-```
-
----
-
-## Database Schema
+## Database schema
 
 | Field | Type | Notes |
 |-------|------|-------|
 | `id` | UUID | Primary key |
-| `company_name` | String | Required, min 2 chars |
+| `company_name` | String | Required |
 | `job_title` | String | Required |
 | `job_type` | Enum | Internship, FullTime, PartTime |
 | `status` | Enum | Applied, Interviewing, Offer, Rejected |
 | `applied_date` | DateTime | Required |
 | `notes` | String | Optional |
-| `created_at` | DateTime | Auto-set |
+| `created_at` | DateTime | Auto-set on create |
 | `updated_at` | DateTime | Auto-updated |
 
 ---
 
-## TypeScript
+## Backend architecture
 
-Both backend and frontend use **strict mode** (`"strict": true`).
+```
+backend/src/
+├── config/
+│   ├── env.ts            env validation
+│   └── database.ts       Prisma singleton
+├── types/
+│   └── index.ts          domain types and DTOs
+├── validations/
+│   └── application.validation.ts   Zod schemas
+├── services/
+│   └── application.service.ts      business logic and DB queries
+├── controllers/
+│   └── application.controller.ts   HTTP handlers
+├── routes/
+│   ├── application.route.ts
+│   └── index.ts
+├── middleware/
+│   ├── validate.ts       Zod middleware
+│   └── errorHandler.ts   global error handler
+├── app.ts                Express app setup
+└── index.ts              server entry point
+```
+
+---
+
+## Available scripts
+
+### Backend
+
+| Script | What it does |
+|--------|-------------|
+| `npm run dev` | Start dev server with hot reload |
+| `npm run build` | Compile TypeScript |
+| `npm run start` | Run compiled build |
+| `npm run db:migrate` | Run Prisma migrations |
+| `npm run db:generate` | Regenerate Prisma client |
+| `npm run db:studio` | Open Prisma Studio |
+
+### Frontend
+
+| Script | What it does |
+|--------|-------------|
+| `npm run dev` | Next.js dev server |
+| `npm run build` | Production build |
+| `npm run start` | Run production build |
+| `npm run lint` | Run ESLint |
+
+### Root (shortcuts)
+
+| Script | What it does |
+|--------|-------------|
+| `npm run dev:backend` | Start backend |
+| `npm run dev:frontend` | Start frontend |
+| `npm run db:migrate` | Run migrations |
 
 ---
 
 ## License
 
 MIT
-
----
-
-## API Reference
-
-Base URL: `http://localhost:5000/api`
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/applications` | List all (supports `?status=` and `?search=`) |
-| GET | `/applications/:id` | Get one application |
-| POST | `/applications` | Create application |
-| PATCH | `/applications/:id` | Partial update |
-| DELETE | `/applications/:id` | Delete |
-
-### POST/PATCH body shape
-
-```json
-{
-  "company_name": "Google",
-  "job_title": "Software Engineer",
-  "job_type": "FullTime",
-  "status": "Applied",
-  "applied_date": "2025-01-15T00:00:00.000Z",
-  "notes": "Referred by John"
-}
-```
-
-`job_type` values: `Internship` | `FullTime` | `PartTime`  
-`status` values: `Applied` | `Interviewing` | `Offer` | `Rejected`
-
----
-
-## Database Schema
-
-```prisma
-model Application {
-  id           String   @id @default(uuid())
-  company_name String
-  job_title    String
-  job_type     JobType
-  status       Status   @default(Applied)
-  applied_date DateTime
-  notes        String?
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt
-}
-```
-
----
-
-## Backend Architecture
-
-```
-backend/src/
-├── config/
-│   ├── env.ts            Environment validation
-│   └── database.ts       Prisma singleton
-├── types/
-│   └── index.ts          Domain types & DTOs
-├── validations/
-│   └── application.validation.ts   Zod schemas
-├── services/
-│   └── application.service.ts      Business logic & DB queries
-├── controllers/
-│   └── application.controller.ts   HTTP request/response
-├── routes/
-│   ├── application.route.ts        Express router
-│   └── index.ts                    Route registry
-├── middleware/
-│   ├── validate.ts       Reusable Zod middleware
-│   └── errorHandler.ts   Global 404 + error handler
-├── app.ts                Express app factory
-└── index.ts              Server entry + graceful shutdown
-```
-
----
-
-## Available Scripts
-
-### Backend
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Dev server with hot reload |
-| `npm run build` | Compile TypeScript |
-| `npm run start` | Run compiled production build |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:generate` | Generate Prisma client |
-| `npm run db:studio` | Open Prisma Studio |
-
-### Frontend
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Next.js dev server |
-| `npm run build` | Production build |
-| `npm run start` | Run production build |
-| `npm run lint` | ESLint check |
-
-### Root (convenience)
-
-| Script | Description |
-|--------|-------------|
-| `npm run dev:backend` | Start backend |
-| `npm run dev:frontend` | Start frontend |
-| `npm run db:migrate` | Run migrations |
