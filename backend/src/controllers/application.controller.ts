@@ -19,7 +19,7 @@ export class ApplicationController {
 
   async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { id } = req.params;
+      const { id } = req.params as { id: string };
       const application = await applicationService.findById(id);
       if (!application) {
         res.status(404).json({ error: "Application not found" });
@@ -43,7 +43,7 @@ export class ApplicationController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { id } = req.params;
+      const { id } = req.params as { id: string };
       const dto = req.body as UpdateApplicationDTO;
       const application = await applicationService.update(id, dto);
       if (!application) {
@@ -58,7 +58,7 @@ export class ApplicationController {
 
   async remove(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { id } = req.params;
+      const { id } = req.params as { id: string };
       const deleted = await applicationService.delete(id);
       if (!deleted) {
         res.status(404).json({ error: "Application not found" });
