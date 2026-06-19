@@ -33,6 +33,19 @@ A full-stack job application tracker built with Next.js, Express.js, PostgreSQL,
 - No `any` types
 
 ---
+**Screenshots**
+<img width="2048" height="1280" alt="CleanShot 2026-06-19 at 9  25 29" src="https://github.com/user-attachments/assets/93277713-de31-4b9a-9adf-b6166684f411" />
+<img width="2048" height="1280" alt="CleanShot 2026-06-19 at 9  23 41" src="https://github.com/user-attachments/assets/c358057a-abc1-4df9-999d-6bbec6cf470e" />
+<img width="2048" height="1280" alt="CleanShot 2026-06-19 at 9  23 58" src="https://github.com/user-attachments/assets/4621bb08-a8a2-453a-bc6f-41727e397edc" />
+<img width="2048" height="1280" alt="CleanShot 2026-06-19 at 9  25 03" src="https://github.com/user-attachments/assets/41735221-27d7-4c33-a9cf-efa34a2e2647" />
+<img width="2048" height="1280" alt="CleanShot 2026-06-19 at 9  24 19" src="https://github.com/user-attachments/assets/b443f4f2-0c87-4bc5-883c-18eba4aeabac" />
+<img width="2048" height="1280" alt="CleanShot 2026-06-19 at 9  24 55" src="https://github.com/user-attachments/assets/8e9ff3cf-8722-4486-a6ac-900eae48558f" />
+
+
+
+
+
+
 
 ## Prerequisites
 
