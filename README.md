@@ -37,7 +37,7 @@ A full-stack job application tracker built with Next.js, Express.js, PostgreSQL,
 ## Prerequisites
 
 - Node.js 18+
-- PostgreSQL 13+ installed locally
+- PostgreSQL 13+ installed locally OR Docker installed (for docker-compose)
 
 ---
 
@@ -66,7 +66,7 @@ cp frontend/.env.example frontend/.env.local
 Edit `backend/.env`:
 
 ```env
-DATABASE_URL="postgresql://YOUR_USER@localhost:5432/application_tracker?schema=public"
+DATABASE_URL="postgresql://tracker_user:tracker_password@localhost:5432/application_tracker?schema=public"
 PORT=5000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
@@ -80,21 +80,50 @@ NEXT_PUBLIC_API_URL=http://localhost:5000/api
 
 ### 4. Set up the database
 
-Start PostgreSQL, then create the database:
+You can choose either option below to run PostgreSQL:
+
+#### Option A: Running PostgreSQL locally
+Start PostgreSQL on your machine, connect to your console, and create the database:
 
 ```bash
 psql postgres
 ```
 
 ```sql
-CREATE DATABASE application_tracker;
+CREATE ROLE tracker_user WITH LOGIN PASSWORD 'tracker_password' SUPERUSER;
+CREATE DATABASE application_tracker OWNER tracker_user;
 \q
+```
+
+#### Option B: Running via Docker Compose (Bonus Point)
+If you have Docker installed, simply start the database container from the root directory:
+
+```bash
+docker compose up -d
 ```
 
 ### 5. Run migrations
 
+Generate the schema and apply the migrations:
+
 ```bash
 npm run db:migrate
+```
+
+---
+
+## Running Tests (Bonus Point)
+
+Run the backend validation unit tests from the root directory:
+
+```bash
+npm test
+```
+
+Or from the backend directory:
+
+```bash
+npm run test -w backend
 ```
 
 ---
