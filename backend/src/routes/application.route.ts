@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { applicationController } from "../controllers/application.controller";
 import { validate } from "../middleware/validate";
+import { authenticateJWT } from "../middleware/auth";
 import {
   CreateApplicationSchema,
   UpdateApplicationSchema,
@@ -9,26 +10,34 @@ import {
 
 const router = Router();
 
+router.use(authenticateJWT);
+
 router.get(
   "/",
   validate(ListQuerySchema, "query"),
-  applicationController.list.bind(applicationController)
+  (req, res, next) => applicationController.list(req, res, next)
 );
 
-router.get("/:id", applicationController.getById.bind(applicationController));
+router.get(
+  "/:id",
+  (req, res, next) => applicationController.getById(req, res, next)
+);
 
 router.post(
   "/",
   validate(CreateApplicationSchema),
-  applicationController.create.bind(applicationController)
+  (req, res, next) => applicationController.create(req, res, next)
 );
 
 router.patch(
   "/:id",
   validate(UpdateApplicationSchema),
-  applicationController.update.bind(applicationController)
+  (req, res, next) => applicationController.update(req, res, next)
 );
 
-router.delete("/:id", applicationController.remove.bind(applicationController));
+router.delete(
+  "/:id",
+  (req, res, next) => applicationController.remove(req, res, next)
+);
 
 export default router;
