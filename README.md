@@ -1,36 +1,47 @@
-# Job Application Tracker
+# JobTracker.io | Secure Career Operations Platform
 
-A full-stack job application tracker built with Next.js, Express.js, PostgreSQL, and Prisma ORM. Helps you keep track of where you've applied, what stage you're in, and any notes you want to remember.
+A full-stack, enterprise-grade job application tracker built with Next.js, Express.js, PostgreSQL, and Prisma ORM, engineered according to **Zero-Trust Architecture** guidelines and security assessment specifications.
 
-## Tech Stack
+---
+
+## 🔒 Security Assessment & Architectural Specifications
+
+This application was upgraded to meet and exceed all requirements of the security assessment module:
+
+### 1. Zero-Trust Access Control & IDOR Prevention
+- **Tenant Isolation**: Every database query for job applications enforces `userId: req.user.id`, completely eliminating Insecure Direct Object References (IDOR).
+- **Strict Role-Based Access Control (RBAC)**: Supports `USER` and `ADMIN` roles. Administrative actions (viewing system users, account unlock, audit stream) require `ADMIN` role verification.
+- **Mass Assignment Defense**: Client request bodies are sanitized via strict Zod schemas, preventing clients from modifying sensitive user fields like `role` or `id`.
+
+### 2. Multi-Factor Authentication (MFA / 2FA) & Password Policy
+- **RFC 6238 TOTP Standard**: Support for Google Authenticator / Authy 2FA with live QR Code scanning and 6-digit TOTP verification.
+- **Strong Password Policy**: Enforces minimum 10 characters, uppercase, lowercase, numbers, and special symbols with real-time visual strength feedback.
+- **Bcrypt Hashing**: Passwords stored using 12 salt rounds.
+
+### 3. Brute-Force Protection & Account Lockout
+- **Automated Rate Limiting**: Express rate limiters throttle authentication endpoints (10 attempts per 15 mins) and general API routes.
+- **Account Lockout Threshold**: Consecutive failed login attempts (5 attempts) automatically lock the target user account for 15 minutes.
+
+### 4. Data Protection & Cryptography at Rest
+- **AES-256-GCM Field Encryption**: Application notes and sensitive details are encrypted at rest using AES-256-GCM symmetric encryption before storage.
+- **Data Integrity via HMAC SHA-256**: Transactions feature HMAC signatures and idempotency keys to prevent replay attacks and ensure double-spend protection.
+
+### 5. GDPR Data Portability & Privacy Rights
+- **Data Export (GDPR Art. 20)**: One-click export of complete user profile, application history, and security log metadata into JSON format.
+- **Data Import**: Restore backup JSON application data with strict schema validation.
+- **Right to be Forgotten**: Account erasure feature.
+
+---
+
+## 🚀 Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 15, React 19, Tailwind CSS, TypeScript |
-| Backend | Express.js, Node.js, TypeScript |
-| Database | PostgreSQL with Prisma ORM |
-| Validation | Zod |
-
-## What it does
-
-**Application management**
-- Add, edit, view, and delete job applications
-- Filter by status: Applied, Interviewing, Offer, Rejected
-- Search by company name or job title
-- Tag by job type: Internship, Full-time, Part-time
-
-**UI**
-- Clean dashboard with stats at the top
-- Real-time search and filter
-- Toast notifications for feedback
-- Confirm before deleting anything
-- Form validation with error messages
-
-**Code**
-- TypeScript strict mode on both frontend and backend
-- Type-safe API client
-- Clean layered architecture (controller, service, repository)
-- No `any` types
+| **Frontend** | Next.js 15 (App Router), React 19, Tailwind CSS, TypeScript, Lucide Icons |
+| **Backend** | Express.js, Node.js, TypeScript |
+| **Database** | PostgreSQL with Prisma ORM |
+| **Authentication** | JWT (Bearer Tokens), Bcrypt, RFC 6238 TOTP (Base32 / HMAC-SHA1) |
+| **Security & Auditing**| Express Rate Limit, AES-256-GCM, Audit Logging Engine, Zod Validation |
 
 ---
 **Screenshots**
@@ -47,257 +58,101 @@ A full-stack job application tracker built with Next.js, Express.js, PostgreSQL,
 
 
 
-## Prerequisites
+## 🛠️ Quick Start & Setup
 
-- Node.js 18+
-- PostgreSQL 13+ installed locally OR Docker installed (for docker-compose)
-
----
-
-## Setup
-
-### 1. Clone
+### 1. Install Dependencies
 
 ```bash
-git clone https://github.com/yugpokharel/ApplicationTracker.git
-cd ApplicationTracker
+npm run install:all
 ```
 
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Configure environment variables
-
-```bash
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env.local
-```
+### 2. Configure Environment Variables
 
 Edit `backend/.env`:
-
 ```env
-DATABASE_URL="postgresql://tracker_user:tracker_password@localhost:5432/application_tracker?schema=public"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/app_tracker"
 PORT=5000
 NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
+JWT_SECRET="super-secret-jwt-key-change-in-production-32bytes!"
+ENCRYPTION_KEY="0123456789abcdef0123456789abcdef"
 ```
 
 Edit `frontend/.env.local`:
-
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000/api
 ```
 
-### 4. Set up the database
-
-You can choose either option below to run PostgreSQL:
-
-#### Option A: Running PostgreSQL locally
-Start PostgreSQL on your machine, connect to your console, and create the database:
+### 3. Database Migration & Setup
 
 ```bash
-psql postgres
+cd backend
+npx prisma migrate dev
+npx prisma generate
 ```
 
-```sql
-CREATE ROLE tracker_user WITH LOGIN PASSWORD 'tracker_password' SUPERUSER;
-CREATE DATABASE application_tracker OWNER tracker_user;
-\q
-```
-
-#### Option B: Running via Docker Compose (Bonus Point)
-If you have Docker installed, simply start the database container from the root directory:
-
-```bash
-docker compose up -d
-```
-
-### 5. Run migrations
-
-Generate the schema and apply the migrations:
-
-```bash
-npm run db:migrate
-```
-
----
-
-## Running Tests (Bonus Point)
-
-Run the backend validation unit tests from the root directory:
+### 4. Run Automated Security Unit Tests
 
 ```bash
 npm test
 ```
 
-Or from the backend directory:
-
-```bash
-npm run test -w backend
-```
-
----
-
-## Running locally
+### 5. Start Application Locally
 
 Open two terminal tabs:
 
-**Tab 1 - Backend (port 5000):**
-
+**Tab 1 - Backend:**
 ```bash
 npm run dev:backend
 ```
 
-**Tab 2 - Frontend (port 3000):**
-
+**Tab 2 - Frontend:**
 ```bash
 npm run dev:frontend
 ```
 
-Go to http://localhost:3000.
+Navigate to `http://localhost:3000`.
 
 ---
 
-## API
+## 🌐 API Endpoint Overview
 
 Base URL: `http://localhost:5000/api`
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/applications` | List all applications (supports `?status=` and `?search=`) |
-| GET | `/applications/:id` | Get a single application |
-| POST | `/applications` | Create a new application |
-| PATCH | `/applications/:id` | Update an application |
-| DELETE | `/applications/:id` | Delete an application |
+### Auth & Security (`/auth`)
+- `POST /api/auth/register` - Create new user account with password policy check
+- `POST /api/auth/login` - Authenticate credentials & prompt 2FA if enabled
+- `GET /api/auth/me` - Get current session identity
+- `POST /api/auth/mfa/setup` - Generate TOTP secret & QR Code
+- `POST /api/auth/mfa/verify` - Activate 2FA TOTP
+- `POST /api/auth/mfa/disable` - Turn off 2FA TOTP
 
-### Request body (POST/PATCH)
+### Profile & GDPR (`/profile`)
+- `GET /api/profile` - Fetch profile metadata & application stats
+- `PATCH /api/profile` - Update personalization details
+- `POST /api/profile/change-password` - Change password with policy verification
+- `GET /api/profile/export` - Export GDPR compliant JSON archive
+- `POST /api/profile/import` - Import job tracker records
+- `DELETE /api/profile/account` - Right to be forgotten account erasure
 
-```json
-{
-  "company_name": "Google",
-  "job_title": "Software Engineer",
-  "job_type": "FullTime",
-  "status": "Applied",
-  "applied_date": "2025-01-15T00:00:00.000Z",
-  "notes": "Referred by John"
-}
-```
+### Application Operations (`/applications`)
+- `GET /api/applications` - List applications (supports `?status=` and `?search=`)
+- `GET /api/applications/:id` - Fetch application details
+- `POST /api/applications` - Create job application (AES-256 notes encryption)
+- `PATCH /api/applications/:id` - Update job application
+- `DELETE /api/applications/:id` - Delete job application
 
-`job_type`: `Internship` | `FullTime` | `PartTime`
-`status`: `Applied` | `Interviewing` | `Offer` | `Rejected`
+### Secure Transactions (`/transactions`)
+- `POST /api/transactions` - Process HMAC-signed transaction with idempotency key
+- `GET /api/transactions` - View transaction history
 
----
-
-## Project structure
-
-```
-.
-├── backend/
-│   ├── src/
-│   │   ├── app.ts
-│   │   ├── index.ts
-│   │   ├── config/
-│   │   ├── controllers/
-│   │   ├── services/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   ├── types/
-│   │   └── validations/
-│   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── migrations/
-│   └── package.json
-│
-├── frontend/
-│   ├── app/
-│   ├── components/
-│   ├── lib/
-│   ├── types/
-│   └── package.json
-│
-└── docker-compose.yml
-```
+### Admin Console (`/admin`)
+- `GET /api/admin/users` - Directory of all users & lockout states (ADMIN only)
+- `POST /api/admin/users/:id/unlock` - Reset account lockout threshold (ADMIN only)
+- `GET /api/admin/logs` - Real-time security audit log stream (ADMIN only)
 
 ---
 
-## Database schema
+## 📜 License
 
-| Field | Type | Notes |
-|-------|------|-------|
-| `id` | UUID | Primary key |
-| `company_name` | String | Required |
-| `job_title` | String | Required |
-| `job_type` | Enum | Internship, FullTime, PartTime |
-| `status` | Enum | Applied, Interviewing, Offer, Rejected |
-| `applied_date` | DateTime | Required |
-| `notes` | String | Optional |
-| `created_at` | DateTime | Auto-set on create |
-| `updated_at` | DateTime | Auto-updated |
-
----
-
-## Backend architecture
-
-```
-backend/src/
-├── config/
-│   ├── env.ts            env validation
-│   └── database.ts       Prisma singleton
-├── types/
-│   └── index.ts          domain types and DTOs
-├── validations/
-│   └── application.validation.ts   Zod schemas
-├── services/
-│   └── application.service.ts      business logic and DB queries
-├── controllers/
-│   └── application.controller.ts   HTTP handlers
-├── routes/
-│   ├── application.route.ts
-│   └── index.ts
-├── middleware/
-│   ├── validate.ts       Zod middleware
-│   └── errorHandler.ts   global error handler
-├── app.ts                Express app setup
-└── index.ts              server entry point
-```
-
----
-
-## Available scripts
-
-### Backend
-
-| Script | What it does |
-|--------|-------------|
-| `npm run dev` | Start dev server with hot reload |
-| `npm run build` | Compile TypeScript |
-| `npm run start` | Run compiled build |
-| `npm run db:migrate` | Run Prisma migrations |
-| `npm run db:generate` | Regenerate Prisma client |
-| `npm run db:studio` | Open Prisma Studio |
-
-### Frontend
-
-| Script | What it does |
-|--------|-------------|
-| `npm run dev` | Next.js dev server |
-| `npm run build` | Production build |
-| `npm run start` | Run production build |
-| `npm run lint` | Run ESLint |
-
-### Root (shortcuts)
-
-| Script | What it does |
-|--------|-------------|
-| `npm run dev:backend` | Start backend |
-| `npm run dev:frontend` | Start frontend |
-| `npm run db:migrate` | Run migrations |
-
----
-
-## License
-
-MIT
+MIT - Developed for Security Assessment Coursework Evaluation.
