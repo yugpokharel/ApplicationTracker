@@ -3,8 +3,13 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 enum JobType {
@@ -20,16 +25,67 @@ enum Status {
   Rejected
 }
 
+model User {
+  id                  String        @id @default(auto()) @map("_id") @db.ObjectId
+  email               String        @unique
+  passwordHash        String
+  name                String
+  role                Role          @default(USER)
+  mfaSecret           String?
+  isMfaEnabled        Boolean       @default(false)
+  backupCodes         String[]      @default([])
+  failedLoginAttempts Int           @default(0)
+  lockoutUntil        DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  applications        Application[]
+  auditLogs           AuditLog[]
+  transactions        Transaction[]
+
+  @@map("users")
+}
+
 model Application {
-  id           String   @id @default(uuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId       String   @db.ObjectId
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   company_name String
   job_title    String
   job_type     JobType
   status       Status   @default(Applied)
   applied_date DateTime
-  notes        String?
+  notes        String?  // AES-256 encrypted at rest
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt
 
   @@map("applications")
+}
+
+model AuditLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  ipAddress String?
+  userAgent String?
+  status    String   // 'SUCCESS' | 'FAILURE' | 'WARNING'
+  details   String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}
+
+model Transaction {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount         Float
+  currency       String   @default("USD")
+  idempotencyKey String   @unique
+  status         String   @default("COMPLETED")
+  hmacSignature  String
+  description    String?
+  createdAt      DateTime @default(now())
+
+  @@map("transactions")
 }
