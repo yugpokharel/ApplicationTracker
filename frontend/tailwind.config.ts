@@ -22,6 +22,7 @@ module.exports = {
           700: "#4263eb",
           800: "#3b5bdb",
           900: "#364fc7",
+          950: "#1e2b6b",
         },
       },
       animation: {
