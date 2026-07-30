@@ -3,6 +3,7 @@ import { env } from "../config/env";
 
 export interface AppError extends Error {
   statusCode?: number;
+  code?: string;
 }
 
 export function notFoundHandler(req: Request, res: Response): void {
@@ -15,15 +16,20 @@ export function globalErrorHandler(
   res: Response,
   _next: NextFunction
 ): void {
-  const statusCode = err.statusCode ?? 500;
-  const message = err.message ?? "Internal server error";
+  let statusCode = err.statusCode ?? 500;
+  let message = err.message ?? "Internal server error";
+
+  // Prisma & MongoDB Connection error handling
+  if (err.code === "P1001" || err.message?.includes("Can't reach database server") || err.message?.includes("MongoServerError")) {
+    statusCode = 503;
+    message = "Database connection error. Please check your MongoDB Atlas DATABASE_URL in backend/.env.";
+  }
 
   if (env.isDev) {
-    console.error(`[Error] ${statusCode} — ${message}`, err.stack);
+    console.error(`[Error] ${statusCode} — ${message}`);
   }
 
   res.status(statusCode).json({
     error: message,
-    ...(env.isDev && { stack: err.stack }),
   });
 }
