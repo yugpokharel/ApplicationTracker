@@ -26,14 +26,14 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
     <div className="relative">
       <Search
         size={16}
-        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
       />
       <input
         type="text"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        placeholder="Search company or role..."
-        className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-9 pr-9 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-brand-500 transition-colors"
+        placeholder="Search by company or role title..."
+        className="h-10 w-full rounded-xl border border-slate-800 bg-slate-900 pl-9 pr-9 text-xs text-white outline-none placeholder:text-slate-500 focus:border-brand-500 transition-colors shadow-inner"
       />
       {localValue && (
         <button
@@ -41,7 +41,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
             setLocalValue("");
             onChange("");
           }}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
         >
           <X size={14} />
         </button>
