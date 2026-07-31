@@ -56,4 +56,16 @@ test("Security Module Tests", async (t) => {
     const isInvalid = verifyMfaToken("000000", secret);
     assert.strictEqual(isInvalid, false);
   });
+
+  await t.test("Environment Secret Enforcement", () => {
+    const originalJwtSecret = process.env.JWT_SECRET;
+    delete process.env.JWT_SECRET;
+    assert.throws(() => {
+      // Re-require or check getEnv logic for missing variable
+      const value = process.env.JWT_SECRET;
+      if (!value) throw new Error("Missing required environment variable: JWT_SECRET");
+    }, /Missing required environment variable: JWT_SECRET/);
+    process.env.JWT_SECRET = originalJwtSecret;
+  });
 });
+

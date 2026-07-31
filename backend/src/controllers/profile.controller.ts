@@ -58,10 +58,14 @@ export class ProfileController {
   async deleteAccount(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      await profileService.deleteAccount(userId);
+      const { password, currentPassword } = req.body || {};
+      const pwd = password || currentPassword;
+
+      await profileService.deleteAccount(userId, pwd);
       res.json({ message: "Account and associated data deleted successfully." });
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      const statusCode = err.statusCode || 400;
+      res.status(statusCode).json({ error: err.message });
     }
   }
 }

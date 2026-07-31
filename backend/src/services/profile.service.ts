@@ -177,7 +177,27 @@ export class ProfileService {
   /**
    * Account Erasure / Right to be Forgotten
    */
-  async deleteAccount(userId: string) {
+  async deleteAccount(userId: string, password?: string) {
+    if (!password) {
+      const error: any = new Error("Current password is required to delete account.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      const error: any = new Error("User not found.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const isValidPassword = await comparePassword(password, user.passwordHash);
+    if (!isValidPassword) {
+      const error: any = new Error("Incorrect password.");
+      error.statusCode = 401;
+      throw error;
+    }
+
     await prisma.user.delete({ where: { id: userId } });
 
     await auditService.log({

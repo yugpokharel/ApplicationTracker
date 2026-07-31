@@ -216,7 +216,27 @@ export class AuthService {
     return true;
   }
 
-  async disableMfa(userId: string): Promise<boolean> {
+  async disableMfa(userId: string, password?: string): Promise<boolean> {
+    if (!password) {
+      const error: any = new Error("Current password is required to disable MFA.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      const error: any = new Error("User not found.");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const isValidPassword = await comparePassword(password, user.passwordHash);
+    if (!isValidPassword) {
+      const error: any = new Error("Incorrect password.");
+      error.statusCode = 401;
+      throw error;
+    }
+
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -233,6 +253,7 @@ export class AuthService {
 
     return true;
   }
+
 
   private generateToken(user: { id: string; email: string; name: string; role: Role; isMfaEnabled: boolean }): string {
     const payload: UserPayload = {

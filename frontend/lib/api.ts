@@ -83,7 +83,11 @@ export const api = {
         body: JSON.stringify({ secret, token }),
       }),
 
-    mfaDisable: () => request<{ message: string }>("/auth/mfa/disable", { method: "POST" }),
+    mfaDisable: (password?: string) =>
+      request<{ message: string }>("/auth/mfa/disable", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+      }),
   },
 
   profile: {
@@ -109,9 +113,10 @@ export const api = {
         body: JSON.stringify({ applications }),
       }),
 
-    deleteAccount: () =>
+    deleteAccount: (password?: string) =>
       request<{ message: string }>("/profile/account", {
         method: "DELETE",
+        body: JSON.stringify({ password }),
       }),
   },
 

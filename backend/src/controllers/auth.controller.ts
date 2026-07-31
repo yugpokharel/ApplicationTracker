@@ -72,10 +72,14 @@ export class AuthController {
   async mfaDisable(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      await authService.disableMfa(userId);
+      const { password, currentPassword } = req.body || {};
+      const pwd = password || currentPassword;
+
+      await authService.disableMfa(userId, pwd);
       res.json({ message: "Multi-Factor Authentication disabled successfully." });
     } catch (err: any) {
-      res.status(400).json({ error: err.message });
+      const statusCode = err.statusCode || 400;
+      res.status(statusCode).json({ error: err.message });
     }
   }
 }
